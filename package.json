@@ -1,0 +1,17 @@
+{
+  "name": "glsl_parcel_template",
+  "version": "1.0.0",
+  "description": "",
+  "source": "./src/index.html",
+  "scripts": {
+    "dev": "clear && parcel",
+    "build": "clear && parcel build",
+    "clear": "rm -rf .parcel-cache"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@parcel/transformer-glsl": "2.3.2",
+    "parcel": "^2.3.2"
+  }
+}
