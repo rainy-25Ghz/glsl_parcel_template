@@ -13,5 +13,8 @@
   "devDependencies": {
     "@parcel/transformer-glsl": "2.3.2",
     "parcel": "^2.3.2"
+  },
+  "dependencies": {
+    "twgl.js": "^4.21.2"
   }
 }

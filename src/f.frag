@@ -8,7 +8,7 @@ in vec3 v_surfaceToLight;
 in vec3 v_surfaceToView;
 
 uniform vec4 u_lightColor;
-uniform vec4 u_colorMult;
+uniform vec4 u_ambient;
 uniform sampler2D u_diffuse;
 uniform vec4 u_specular;
 uniform float u_shininess;
@@ -32,7 +32,7 @@ void main() {
   vec4 litR = lit(dot(a_normal, surfaceToLight),
                     dot(a_normal, halfVector), u_shininess);
   outColor = vec4((
-    u_lightColor * (diffuseColor * litR.y * u_colorMult +
+  u_lightColor * (diffuseColor * litR.y + diffuseColor * u_ambient +
                 u_specular * litR.z * u_specularFactor)).rgb,
       diffuseColor.a);
 }
