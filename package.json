@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "clear && parcel",
     "build": "clear && parcel build",
-    "clear": "rm -rf .parcel-cache"
+    "clear": "rm -rf .parcel-cache && rm -rf dist"
   },
   "author": "",
   "license": "ISC",
