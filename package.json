@@ -4,8 +4,8 @@
   "description": "",
   "source": "./src/index.html",
   "scripts": {
-    "dev": "clear_all && parcel",
-    "build": "clear_all && parcel build",
+    "dev": "parcel",
+    "build": "parcel build",
     "clear_all": "rm -rf .parcel-cache && rm -rf dist"
   },
   "author": "",
