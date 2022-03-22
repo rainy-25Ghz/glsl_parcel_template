@@ -14,7 +14,10 @@ function main() {
     return;
   }
   const program3dInfo = twgl.createProgramInfo(gl, [vs, fs]);
-  const programPostProcessingInfo=twgl.createProgramInfo(gl,[postVs,postFs]);
+  const programPostProcessingInfo = twgl.createProgramInfo(gl, [
+    postVs,
+    postFs,
+  ]);
 
   // Tell the twgl to match position with a_position, n
   // normal with a_normal etc..
@@ -44,7 +47,62 @@ function main() {
     ],
   };
   const bufferInfo = twgl.createBufferInfoFromArrays(gl, arrays);
+  const postArrays = {
+    position: [-1, -1, 0, 1, -1, 0, -1, 1, 0, -1, 1, 0, 1, -1, 0, 1, 1, 0],
+    texcoord: [-1, -1, 0, 1, -1, 0, -1, 1, 0, -1, 1, 0, 1, -1, 0, 1, 1, 0],
+    // texCoord: [0, 0, 1, 0, 0, 1, 0, 1, 1, 0, 1, 1],
+  };
+  const bufferInfoPost = twgl.createBufferInfoFromArrays(gl, postArrays);
+  function createTexture(
+    gl: WebGL2RenderingContext,
+    width: number,
+    height: number
+  ) {
+    const tex = gl.createTexture();
+    gl.bindTexture(gl.TEXTURE_2D, tex);
+    gl.texImage2D(
+      gl.TEXTURE_2D,
+      0,
+      gl.RGBA,
+      width,
+      height,
+      0,
+      gl.RGBA,
+      gl.UNSIGNED_BYTE,
+      null
+    );
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+    return tex;
+  }
 
+  const texImg = createTexture(gl, gl.canvas.width, gl.canvas.height);
+  const fb = gl.createFramebuffer();
+  function setFramebuffer(
+    fbo: WebGLFramebuffer,
+    width: number,
+    height: number
+  ) {
+    // make this the framebuffer we are rendering to.
+    gl.bindFramebuffer(gl.FRAMEBUFFER, fbo);
+
+    const mipLevel = 0; //mipmap
+    // Attach a texture to it.
+    const attachmentPoint = gl.COLOR_ATTACHMENT0;
+    gl.framebufferTexture2D(
+      gl.FRAMEBUFFER,
+      attachmentPoint,
+      gl.TEXTURE_2D,
+      texImg,
+      mipLevel
+    );
+
+    // Tell WebGL how to convert from clip space to pixels
+    gl.viewport(0, 0, width, height);
+  }
+  setFramebuffer(fb, gl.canvas.width, gl.canvas.height);
   const tex = twgl.createTexture(gl, {
     min: gl.NEAREST,
     mag: gl.NEAREST,
@@ -53,7 +111,8 @@ function main() {
       255,
     ],
   });
-  const uniforms: { [key: string]: any } = {
+
+  const uniforms_3d: { [key: string]: any } = {
     u_lightWorldPos: [1, 8, -10],
     u_lightColor: [1, 0.8, 0.8, 1],
     u_ambient: [0, 0, 0, 1],
@@ -86,18 +145,37 @@ function main() {
     const viewProjection = m4.multiply(projection, view);
     const world = m4.rotationY(time);
 
-    uniforms.u_viewInverse = camera;
-    uniforms.u_world = world;
-    uniforms.u_worldInverseTranspose = m4.transpose(m4.inverse(world));
-    uniforms.u_worldViewProjection = m4.multiply(viewProjection, world);
+    uniforms_3d.u_viewInverse = camera;
+    uniforms_3d.u_world = world;
+    uniforms_3d.u_worldInverseTranspose = m4.transpose(m4.inverse(world));
+    uniforms_3d.u_worldViewProjection = m4.multiply(viewProjection, world);
 
     gl.useProgram(program3dInfo.program);
+    gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
     twgl.setBuffersAndAttributes(gl, program3dInfo, bufferInfo);
-    twgl.setUniforms(program3dInfo, uniforms);
+    twgl.setUniforms(program3dInfo, uniforms_3d);
+    setFramebuffer(fb, gl.canvas.width, gl.canvas.height);
     gl.drawElements(gl.TRIANGLES, bufferInfo.numElements, gl.UNSIGNED_SHORT, 0);
+
+   
+
+    gl.useProgram(programPostProcessingInfo.program);
+       // gl.uniform1i(texLoc, 0);
+    // gl.activeTexture(gl.TEXTURE1); //激活texture，🤔️不太懂
+    // gl.bindTexture(gl.TEXTURE_2D, texImg);
+    const uniformsPost = {
+      u_image: texImg,
+    };
+    twgl.setBuffersAndAttributes(gl, programPostProcessingInfo, bufferInfoPost);
+    twgl.setUniforms(programPostProcessingInfo, uniformsPost);
+    // 后处理特效
+    gl.bindFramebuffer(gl.FRAMEBUFFER, null); //把纹理渲染到canvas
+    gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
+    gl.drawArrays(gl.TRIANGLES, 0, bufferInfoPost.numElements);
 
     requestAnimationFrame(render);
   }
+  // render();
   requestAnimationFrame(render);
 }
 
