@@ -49,8 +49,8 @@ function main() {
   const bufferInfo = twgl.createBufferInfoFromArrays(gl, arrays);
   const postArrays = {
     position: [-1, -1, 0, 1, -1, 0, -1, 1, 0, -1, 1, 0, 1, -1, 0, 1, 1, 0],
-    texcoord: [-1, -1, 0, 1, -1, 0, -1, 1, 0, -1, 1, 0, 1, -1, 0, 1, 1, 0],
-    // texCoord: [0, 0, 1, 0, 0, 1, 0, 1, 1, 0, 1, 1],
+    // texcoord: [-1, -1, 0, 1, -1, 0, -1, 1, 0, -1, 1, 0, 1, -1, 0, 1, 1, 0],
+    texcoord: [0, 0, 1, 0, 0, 1, 0, 1, 1, 0, 1, 1],
   };
   const bufferInfoPost = twgl.createBufferInfoFromArrays(gl, postArrays);
   function createTexture(
@@ -157,12 +157,7 @@ function main() {
     setFramebuffer(fb, gl.canvas.width, gl.canvas.height);
     gl.drawElements(gl.TRIANGLES, bufferInfo.numElements, gl.UNSIGNED_SHORT, 0);
 
-   
-
     gl.useProgram(programPostProcessingInfo.program);
-       // gl.uniform1i(texLoc, 0);
-    // gl.activeTexture(gl.TEXTURE1); //激活texture，🤔️不太懂
-    // gl.bindTexture(gl.TEXTURE_2D, texImg);
     const uniformsPost = {
       u_image: texImg,
     };
