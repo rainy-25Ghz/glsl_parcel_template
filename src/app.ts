@@ -53,56 +53,25 @@ function main() {
     texcoord: [0, 0, 1, 0, 0, 1, 0, 1, 1, 0, 1, 1],
   };
   const bufferInfoPost = twgl.createBufferInfoFromArrays(gl, postArrays);
-  function createTexture(
-    gl: WebGL2RenderingContext,
-    width: number,
-    height: number
-  ) {
+ 
+ //framebuffer与attach到fbo上的texture
+  function createTextureAndFramebuffer(gl:WebGL2RenderingContext, width:number, height:number) {
     const tex = gl.createTexture();
     gl.bindTexture(gl.TEXTURE_2D, tex);
-    gl.texImage2D(
-      gl.TEXTURE_2D,
-      0,
-      gl.RGBA,
-      width,
-      height,
-      0,
-      gl.RGBA,
-      gl.UNSIGNED_BYTE,
-      null
-    );
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, width, height, 0, gl.RGBA, gl.UNSIGNED_BYTE, null);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-    return tex;
-  }
-
-  const texImg = createTexture(gl, gl.canvas.width, gl.canvas.height);
-  const fb = gl.createFramebuffer();
-  function setFramebuffer(
-    fbo: WebGLFramebuffer,
-    width: number,
-    height: number
-  ) {
-    // make this the framebuffer we are rendering to.
-    gl.bindFramebuffer(gl.FRAMEBUFFER, fbo);
-
-    const mipLevel = 0; //mipmap
-    // Attach a texture to it.
-    const attachmentPoint = gl.COLOR_ATTACHMENT0;
+    const fb = gl.createFramebuffer();
+    gl.bindFramebuffer(gl.FRAMEBUFFER, fb);
     gl.framebufferTexture2D(
-      gl.FRAMEBUFFER,
-      attachmentPoint,
-      gl.TEXTURE_2D,
-      texImg,
-      mipLevel
-    );
-
-    // Tell WebGL how to convert from clip space to pixels
-    gl.viewport(0, 0, width, height);
+       gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, tex, 0);
+    return {texture: tex, fb: fb};
   }
-  setFramebuffer(fb, gl.canvas.width, gl.canvas.height);
+
+  
+  // 3d立方体纹理
   const tex = twgl.createTexture(gl, {
     min: gl.NEAREST,
     mag: gl.NEAREST,
@@ -151,15 +120,21 @@ function main() {
     uniforms_3d.u_worldViewProjection = m4.multiply(viewProjection, world);
 
     gl.useProgram(program3dInfo.program);
+    
+    const {texture,fb}=createTextureAndFramebuffer(gl,gl.canvas.width,gl.canvas.height);
+    gl.bindFramebuffer(gl.FRAMEBUFFER,fb);
+    
     gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
     twgl.setBuffersAndAttributes(gl, program3dInfo, bufferInfo);
     twgl.setUniforms(program3dInfo, uniforms_3d);
-    setFramebuffer(fb, gl.canvas.width, gl.canvas.height);
     gl.drawElements(gl.TRIANGLES, bufferInfo.numElements, gl.UNSIGNED_SHORT, 0);
-
+    
+   
+    // Tell WebGL how to convert from clip space to pixels
+    // gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
     gl.useProgram(programPostProcessingInfo.program);
     const uniformsPost = {
-      u_image: texImg,
+      u_image: texture,
     };
     twgl.setBuffersAndAttributes(gl, programPostProcessingInfo, bufferInfoPost);
     twgl.setUniforms(programPostProcessingInfo, uniformsPost);
@@ -170,7 +145,6 @@ function main() {
 
     requestAnimationFrame(render);
   }
-  // render();
   requestAnimationFrame(render);
 }
 

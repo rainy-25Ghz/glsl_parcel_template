@@ -14,7 +14,10 @@ in vec2 v_texcoord;
 out vec4 outColor;
 
 void main() {
-  // vec2 onePixel = vec2(1) / vec2(textureSize(u_image, 0));
+  vec2 threePixel = vec2(3) / vec2(textureSize(u_image, 0));
     // outColor = vec4(0.5,1.0,0.1,0.5);
-  outColor = texture(u_image, v_texcoord).bgra;
+  float r = texture(u_image, v_texcoord+threePixel).x;
+  float g = texture(u_image, v_texcoord).y;
+  float b = texture(u_image, v_texcoord).z;
+  outColor = vec4(r, g, b, 1);
 }
