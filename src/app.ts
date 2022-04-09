@@ -1,8 +1,21 @@
 import fs from "./f.frag";
 import vs from "./v.vert";
 import * as twgl from "../node_modules/twgl.js/dist/4.x/twgl-full";
+import obj from "bundle-text:./teapot.obj";
+import { ObjMesh } from "./obj";
+let img = document.createElement("img");
+const url = new URL("bricks.png", import.meta.url);
+img.src = url.pathname;
 
 function main() {
+  const objMesh = new ObjMesh();
+  objMesh.parse(obj);
+  let geometry = objMesh.getVertexBuffers();
+  const info_ = {
+    position: geometry.positionBuffer,
+    normal: geometry.normalBuffer,
+    texcoord: geometry.texCoordBuffer,
+  };
   const { m4 } = twgl;
   // Get A WebGL context
   /** @type {HTMLCanvasElement} */
@@ -19,31 +32,50 @@ function main() {
 
   // a single cube
   const arrays = {
-    position: [1, 1, -1, 1, 1, 1, 1, -1, 1, 1, -1, -1, -1, 1, 1, -1, 1, -1, -1, -1, -1, -1, -1, 1, -1, 1, 1, 1, 1, 1, 1, 1, -1, -1, 1, -1, -1, -1, -1, 1, -1, -1, 1, -1, 1, -1, -1, 1, 1, 1, 1, -1, 1, 1, -1, -1, 1, 1, -1, 1, -1, 1, -1, 1, 1, -1, 1, -1, -1, -1, -1, -1],
-    normal:   [1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, -1, 0, 0, -1, 0, 0, -1, 0, 0, -1, 0, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, -1, 0, 0, -1, 0, 0, -1, 0, 0, -1, 0, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, -1, 0, 0, -1, 0, 0, -1, 0, 0, -1],
-    texcoord: [1, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1],
+    position: [
+      1, 1, -1, 1, 1, 1, 1, -1, 1, 1, -1, -1, -1, 1, 1, -1, 1, -1, -1, -1, -1,
+      -1, -1, 1, -1, 1, 1, 1, 1, 1, 1, 1, -1, -1, 1, -1, -1, -1, -1, 1, -1, -1,
+      1, -1, 1, -1, -1, 1, 1, 1, 1, -1, 1, 1, -1, -1, 1, 1, -1, 1, -1, 1, -1, 1,
+      1, -1, 1, -1, -1, -1, -1, -1,
+    ],
+    normal: [
+      1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, -1, 0, 0, -1, 0, 0, -1, 0, 0, -1, 0,
+      0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, -1, 0, 0, -1, 0, 0, -1, 0, 0,
+      -1, 0, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, -1, 0, 0, -1, 0, 0, -1,
+      0, 0, -1,
+    ],
+    texcoord: [
+      1, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1,
+      0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1,
+    ],
     indices: [
       0, 1, 4, 0, 4, 3, 1, 2, 5, 1, 5, 4, 3, 4, 7, 3, 7, 6, 4, 5, 8, 4, 8, 7,
     ],
   };
-  const bufferInfo = twgl.createBufferInfoFromArrays(gl, arrays);
+  const bufferInfo = twgl.createBufferInfoFromArrays(gl, info_);
 
-  const tex = twgl.createTexture(gl, {
-    min: gl.NEAREST,
-    mag: gl.NEAREST,
-    src: [
-      255, 255, 255, 255, 192, 192, 192, 255, 192, 192, 192, 255, 255, 255, 255,
-      255,
-    ],
-  });
+  // const tex = twgl.createTexture(gl, {
+  //   min: gl.NEAREST,
+  //   mag: gl.NEAREST,
+  //   src: [
+  //     255, 255, 255, 255, 192, 192, 192, 255, 192, 192, 192, 255, 255, 255, 255,
+  //     255,
+  //   ],
+  // });
+  const red = [1.0, 0, 0, 1];
   const uniforms: { [key: string]: any } = {
-    u_lightWorldPos: [1, 8, -10],
-    u_lightColor: [1, 0.8, 0.8, 1],
-    u_ambient: [0, 0, 0, 1],
-    u_specular: [1, 1, 1, 1],
-    u_shininess: 50,
-    u_specularFactor: 1,
-    u_diffuse: tex,
+    u_lightWorldPos: [0, 2.0, 15],
+    u_lightColor: [1, 1, 1],
+    u_ambientColor: [0.05, 0.05, 0.05],
+    u_specularColor: [1, 1, 1],
+    u_shininess: 40,
+    u_color: red,
+    u_useTexture: true,
+    u_tex: twgl.createTexture(gl, {
+      min: gl.LINEAR,
+      mag: gl.LINEAR,
+      src: img,
+    }),
   };
 
   function render(time) {
@@ -60,7 +92,7 @@ function main() {
     const zNear = 0.5;
     const zFar = 1000;
     const projection = m4.perspective(fov, aspect, zNear, zFar);
-    const eye = [1, 8, -26];
+    const eye = [1, 8, 100];
     const target = [0, 0, 0];
     const up = [0, 1, 0];
 
@@ -77,11 +109,10 @@ function main() {
     gl.useProgram(programInfo.program);
     twgl.setBuffersAndAttributes(gl, programInfo, bufferInfo);
     twgl.setUniforms(programInfo, uniforms);
-    gl.drawElements(gl.TRIANGLES, bufferInfo.numElements, gl.UNSIGNED_SHORT, 0);
-
+    gl.drawArrays(gl.TRIANGLES, 0, bufferInfo.numElements);
     requestAnimationFrame(render);
   }
   requestAnimationFrame(render);
 }
-
-main();
+img.addEventListener("load", main);
+// main();
