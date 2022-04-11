@@ -8,17 +8,13 @@ const url = new URL("bricks.png", import.meta.url);
 img.src = url.pathname;
 
 function main() {
-  const objMesh = new ObjMesh();
-  objMesh.parse(obj);
-  let geometry = objMesh.getVertexBuffers();
+  
   const info_ = {
-    position: geometry.positionBuffer,
-    normal: geometry.normalBuffer,
-    texcoord: geometry.texCoordBuffer,
+    position: [-1,3,0,-1,-1,0,3,-1,0],
+    texcoord: [0,2,0,0,2,0],
   };
   const { m4 } = twgl;
-  // Get A WebGL context
-  /** @type {HTMLCanvasElement} */
+  
   let canvas = document.querySelector("#canvas") as HTMLCanvasElement;
   let gl = canvas.getContext("webgl2");
   if (!gl) {
@@ -33,20 +29,20 @@ function main() {
   
   const bufferInfo = twgl.createBufferInfoFromArrays(gl, info_);
 
-  const red = [1.0, 0, 0, 1];
+  // const red = [1.0, 0, 0, 1];
   const uniforms: { [key: string]: any } = {
-    u_lightWorldPos: [0, 2.0, 15],
-    u_lightColor: [1, 1, 1],
-    u_ambientColor: [0.05, 0.05, 0.05],
-    u_specularColor: [1, 1, 1],
-    u_shininess: 40,
-    u_color: red,
-    u_useTexture: true,
-    u_tex: twgl.createTexture(gl, {
-      min: gl.LINEAR,
-      mag: gl.LINEAR,
-      src: img,
-    }),
+    // u_lightWorldPos: [0, 2.0, 15],
+    // u_lightColor: [1, 1, 1],
+    // u_ambientColor: [0.05, 0.05, 0.05],
+    // u_specularColor: [1, 1, 1],
+    // u_shininess: 40,
+    // u_color: red,
+    // u_useTexture: true,
+    // u_tex: twgl.createTexture(gl, {
+    //   min: gl.LINEAR,
+    //   mag: gl.LINEAR,
+    //   src: img,
+    // }),
   };
 
   function render(time) {
@@ -58,24 +54,24 @@ function main() {
     gl.enable(gl.CULL_FACE);
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
-    const fov = (30 * Math.PI) / 180;
-    const aspect = gl.canvas.clientWidth / gl.canvas.clientHeight;
-    const zNear = 0.5;
-    const zFar = 1000;
-    const projection = m4.perspective(fov, aspect, zNear, zFar);
-    const eye = [1, 8, 100];
-    const target = [0, 0, 0];
-    const up = [0, 1, 0];
+    // const fov = (30 * Math.PI) / 180;
+    // const aspect = gl.canvas.clientWidth / gl.canvas.clientHeight;
+    // const zNear = 0.5;
+    // const zFar = 1000;
+    // const projection = m4.perspective(fov, aspect, zNear, zFar);
+    // const eye = [1, 8, 100];
+    // const target = [0, 0, 0];
+    // const up = [0, 1, 0];
 
-    const camera = m4.lookAt(eye, target, up);
-    const view = m4.inverse(camera);
-    const viewProjection = m4.multiply(projection, view);
-    const world = m4.rotationY(time);
+    // const camera = m4.lookAt(eye, target, up);
+    // const view = m4.inverse(camera);
+    // const viewProjection = m4.multiply(projection, view);
+    // const world = m4.rotationY(time);
 
-    uniforms.u_viewInverse = camera;
-    uniforms.u_world = world;
-    uniforms.u_worldInverseTranspose = m4.transpose(m4.inverse(world));
-    uniforms.u_worldViewProjection = m4.multiply(viewProjection, world);
+    // uniforms.u_viewInverse = camera;
+    // uniforms.u_world = world;
+    // uniforms.u_worldInverseTranspose = m4.transpose(m4.inverse(world));
+    // uniforms.u_worldViewProjection = m4.multiply(viewProjection, world);
 
     gl.useProgram(programInfo.program);
     twgl.setBuffersAndAttributes(gl, programInfo, bufferInfo);
