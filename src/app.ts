@@ -15,6 +15,8 @@ function main() {
     const { m4 } = twgl;
 
     let canvas = document.querySelector("#canvas") as HTMLCanvasElement;
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
     let gl = canvas.getContext("webgl2");
     if (!gl) {
         return;
@@ -29,8 +31,7 @@ function main() {
 
     // const red = [1.0, 0, 0, 1];
     const uniforms: { [key: string]: any } = {
-        u_width: canvas.width,
-        u_height: canvas.height,
+        u_resolution: [canvas.width, canvas.height],
         // u_lightWorldPos: [0, 2.0, 15],
         // u_lightColor: [1, 1, 1],
         // u_ambientColor: [0.05, 0.05, 0.05],

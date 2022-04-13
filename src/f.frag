@@ -2,9 +2,8 @@
 precision highp float;
 
 in vec4 v_position;
-in vec2 v_texCoord;
-uniform float width;//屏幕宽度
-uniform float height;//屏幕高度
+uniform vec2 u_resolution;//屏幕分辨率
+
 // in vec3 v_normal;
 // in vec3 v_surfaceToLight;//表面到光源的向量
 // in vec3 v_surfaceToView;//表面到相机的向量
@@ -50,24 +49,36 @@ float getRayPlaneT(ray r, plane p){
 
 vec4 pink=vec4(1.00, 0.83, 0.83, 1.0);
 vec4 blue=vec4(0.63, 0.81, 1.00, 1.0);
-vec3 camera=vec3(0,0,-1);
+vec3 camera=vec3(0,0,1);
 sphere ball=sphere(vec3(0,0,0),10.0);
-plane  ground=plane(vec3(0,1,0),0.0);
+plane  ground=plane(vec3(0,1,0),0.1);
 float thresh=0.000001;
 void main() {
-  vec4 color;
-  vec2 uv=v_texCoord;
-  vec3 target=vec3(uv.x*2.0-1.0,uv.y*2.0-1.0,0);
-  vec3 dir=normalize(target-camera);
+  // 生成初始射线 参见https://www.scratchapixel.com/lessons/3d-basic-rendering/ray-tracing-generating-camera-rays/generating-camera-rays
+  vec2 uv=gl_FragCoord.xy/u_resolution;//左下角为（0，0），右上角为（1，1）
+  uv = uv * 2.0 - 1.0;// [0,1] to [-1,1] 
+  uv.x *= u_resolution.x / u_resolution.y; //修正像素宽度，防止像素被拉长
+  float fov=1.0;//fov为tan(π/2)
+  uv *= fov;
   ray r;
-  r.p=camera;
-  r.d=dir;
-  r.t=0.0;
-  if(getRayPlaneT(r,ground)>=thresh){
-    color=vec4(1.0,0,0,0);
+  r.p= camera;
+  vec3 target=vec3(uv,0);
+  r.d=target-camera;
+
+
+  //需要把纹理坐标转化为世界坐标系
+  
+  // vec3 target=vec3(uv.x*2.0-1.0,uv.y*2.0-1.0,0);
+  // vec3 dir=normalize(target-camera);
+  // ray r;
+  // r.p=camera;
+  // r.d=dir;
+  // r.t=0.0;
+  if(getRayPlaneT(r,ground)>thresh){
+    outColor=vec4(1.0,1.0,0,0);
   }
   else{
-    color=linearVertGradient(uv.y,pink,blue);
+    outColor=linearVertGradient(uv.y,pink,blue);
   } 
-  outColor=vec4(dir,1);
+  // outColor=color;
 }
