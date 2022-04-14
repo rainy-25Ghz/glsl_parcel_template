@@ -30,7 +30,7 @@ function main() {
     const bufferInfo = twgl.createBufferInfoFromArrays(gl, info_);
 
     // const red = [1.0, 0, 0, 1];
-    const uniforms: { [key: string]: any } = {
+    let uniforms: { [key: string]: any } = {
         u_resolution: [canvas.width, canvas.height],
         // u_lightWorldPos: [0, 2.0, 15],
         // u_lightColor: [1, 1, 1],
@@ -46,8 +46,7 @@ function main() {
         // }),
     };
 
-    function render(time) {
-        time *= 0.001;
+    function render(time:number) {
         twgl.resizeCanvasToDisplaySize(gl.canvas);
         gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
 
@@ -73,7 +72,7 @@ function main() {
         // uniforms.u_world = world;
         // uniforms.u_worldInverseTranspose = m4.transpose(m4.inverse(world));
         // uniforms.u_worldViewProjection = m4.multiply(viewProjection, world);
-
+        uniforms['time']=time;
         gl.useProgram(programInfo.program);
         twgl.setBuffersAndAttributes(gl, programInfo, bufferInfo);
         twgl.setUniforms(programInfo, uniforms);
