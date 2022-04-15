@@ -1,22 +1,23 @@
 // Decrease for faster final result. Increase for a less noisey result.
-#define MAX_WEIGHT 200
+// #define MAX_WEIGHT 200
 
 #define MAX_BOUNCES 10
-#define NUM_SPHERES 5
-#define SAMPLES 1
+#define NUM_SPHERES 5 //球体个数
+#define SAMPLES 1 //采样数
 
 #define PI  3.14159265359
 #define PI2 6.28318530717
 
+
 #define LAMB 0
 #define METAL 1
-#define DIEL 2
+#define DIEL 2 //电介质材料，可以理解为透明材料
 
 const float GAMMA = 2.2;
 
 struct Material {
 	int type;
-    vec3 albedo;
+    vec3 albedo;//反射率
     float parameter;
 };
     
@@ -33,15 +34,14 @@ struct Ray {
     
 Sphere scene[NUM_SPHERES];
 
+//种子
 float seed = 0.0;
 vec2 UV = vec2(0.0);
-
-
-// Helper functions.
+// 随机数
 float random() {
 	return fract(sin(dot(UV, vec2(12.9898, 78.233)) + seed++) * 43758.5453);
 }
-
+//随机单位向量
 vec3 randomUnitVector() {
 	float theta = random() * PI2;
     float z = random() * 2.0 - 1.0;
@@ -54,6 +54,7 @@ vec3 rayPointAt(Ray ray, float t) {
  	return ray.origin + t * ray.direction;   
 }
 
+//处理折射问题
 float schlick(float cosine, float IOR) {
  	float r0 = (1.0 - IOR) / (1.0 + IOR);
     r0 *= r0;
@@ -65,7 +66,7 @@ float schlick(float cosine, float IOR) {
 bool hitScene(Ray ray, float tMin, float tMax,
               out vec3 position, out vec3 normal, out Material material)
 {
-    float closestSoFar = tMax;
+    float closestSoFar = tMax;//最近的交点的t
     bool hitAnything = false;
     
     for (int i = 0; i < NUM_SPHERES; i++) {
@@ -94,10 +95,10 @@ bool hitScene(Ray ray, float tMin, float tMax,
             }
         }
     }
-    
  	return hitAnything;
 }
 
+//追踪一条光线
 vec3 trace(Ray ray) {
   	// Pass these to the `hitScene` function.
     vec3 normal, position;
@@ -109,15 +110,20 @@ vec3 trace(Ray ray) {
     for (int b = 0; b < MAX_BOUNCES; b++) {
         if (hitScene(ray, 0.001, 5000.0, position, normal, material)) {
             if (material.type == LAMB) {
+                //处理漫反射材质
+                //反射方向随机散射
                 vec3 direction = normal + randomUnitVector();
+                //反射光线
                 ray = Ray(position, direction);
+                // 颜色按照反射率衰减
                 color *= material.albedo * mask;
                 mask *= material.albedo;
             }
             else if (material.type == METAL) {
-                vec3 reflected = reflect(ray.direction, normal);
-                vec3 direction = randomUnitVector() * material.parameter + reflected;
+                vec3 reflected = reflect(ray.direction, normal);//反射光方向
+                vec3 direction = randomUnitVector() * material.parameter + reflected;//这个parameter可以理解为金属的粗糙度，会让镜面反射散射一些。
                 
+                //如果反射方向与法线在同一侧，那么反射，否则不考虑
                 if (dot(direction, normal) > 0.0) {
                		ray = Ray(position, direction);
                 	color *= material.albedo * mask;
@@ -178,7 +184,7 @@ void initScene() {
     scene[1] = Sphere(vec3(0, 1, 2.5), 1.0, Material(METAL, vec3(0.9, 0.9, 0.9), 0.01));
     scene[2] = Sphere(vec3(0, 1, -2.5), 1.0, Material(DIEL, vec3(0, 0, 0), 1.5));
     scene[3] = Sphere(vec3(0, 1, -2.5), -0.92, Material(DIEL, vec3(0.9, 0.9, 0.9), 1.5));
-    scene[4] = Sphere(vec3(0, -1e3, 0), 1e3, Material(METAL, vec3(0.7, 0.75, 0.8), 0.4));
+    scene[3] = Sphere(vec3(0, -1e3, 0), 1e3, Material(METAL, vec3(0.7, 0.75, 0.8), 0.4));
 }
 
 void mainImage(out vec4 fragColor, in vec2 fragCoord) {
