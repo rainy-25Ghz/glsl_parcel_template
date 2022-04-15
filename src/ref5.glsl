@@ -1,6 +1,3 @@
-#version 300 es
-precision highp float;
-
 // License Creative Commons Attribution-NonCommercial-ShareAlike 3.0 Unported License.
 
 // Hopefully this one would grow to something bigger.
@@ -10,9 +7,9 @@ precision highp float;
 // Set it bigger to less noise and accurate render. (but comment MOVEMENT).
 #define MAX_WEIGHT 10
 
-#define MAX_DISTANCE 500.0
+#define MAX_DISTANCE 50.0
 
-#define SAMPLES 20
+#define SAMPLES 2
 #define MAX_BOUNCES 15
 #define NUM_SPHERES 4
 
@@ -349,12 +346,6 @@ void main()
     }
     
     color /= float(SAMPLES);
-
-    vec3 previousColor = texture(iChannel0, UV).rgb;
     
-    float weight = min(float(iFrame + 1), float(MAX_WEIGHT));
-    
-    vec3 newColor = mix(previousColor, color, 1.0 / weight);
-     
-    outColor = pow(newColor, vec4(0.4545));
+    outColor = vec4(color, 1.0);
 }
