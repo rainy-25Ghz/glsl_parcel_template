@@ -8,11 +8,11 @@ precision highp float;
 // I'm still learning.
 
 // Set it bigger to less noise and accurate render. (but comment MOVEMENT).
-#define MAX_WEIGHT 10
+// #define MAX_WEIGHT 10
 
 #define MAX_DISTANCE 500.0
 
-#define SAMPLES 20
+#define SAMPLES 50
 #define MAX_BOUNCES 15
 #define NUM_SPHERES 4
 
@@ -287,14 +287,7 @@ void SceneFill()
     // Main spheres.
 	scene[0] = Sphere(vec3(0.0, 1.0, 3.0), 1.0, Material(LAMB, vec3(0., 0.9, 0.9), 0.0));
     scene[1] = Sphere(vec3(0.0, 1.0, 0.0), 1.0, Material(METAL, vec3(0.9, 0.9, 0.9), 0.5));
-    scene[2] = Sphere(vec3(0.0, 4.0, -3.0), 1.0, Material(DIEL, vec3(0.9, 0.9, 0.9), 1.517));
-    // Negative radius hack sphere inside main (DIEL) one for correct reflection.
-   // scene[3] = Sphere(vec3(0.0, 1.0, -3.0), -0.9, Material(DIEL, vec3(0.9, 0.9, 0.9), 1.517));
-    
-    //scene[4] = Sphere(vec3(0.0, 0.3, -1.5), 0.3, Material(EMISSIVE, vec3(0.83, 0.2, 0.2), 20.));
-    //scene[5] = Sphere(vec3(0.0, 0.3, 1.5), 0.3, Material(EMISSIVE, vec3(0.2, 0.83, 0.2), 20.));
-    
-    // A thin metal disk under main spheres, play with roughness!
+    scene[2] = Sphere(vec3(0.0, 1.0, -3.0), 1.0, Material(DIEL, vec3(0.9, 0.9, 0.9), 1.517));
     scene[3] = Sphere(vec3(0., -1e3, 0.), 1e3, Material(METAL, vec3(0.7, 0.75, 0.8), 0.25));
 }
 
@@ -302,7 +295,7 @@ void main()
 {
     // Initialization and seed.
     SceneFill();
-    seed = 100.0;
+    seed = time;
     
     
     // Basic normalization.
@@ -350,11 +343,11 @@ void main()
     
     color /= float(SAMPLES);
 
-    vec3 previousColor = texture(iChannel0, UV).rgb;
+    // vec3 previousColor = texture(iChannel0, UV).rgb;
     
-    float weight = min(float(iFrame + 1), float(MAX_WEIGHT));
+    // float weight = min(float(iFrame + 1), float(MAX_WEIGHT));
     
-    vec3 newColor = mix(previousColor, color, 1.0 / weight);
+    // vec3 newColor = mix(previousColor, color, 1.0 / weight);
      
-    outColor = pow(newColor, vec4(0.4545));
+    outColor =vec4(color,1);
 }
