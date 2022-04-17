@@ -10,10 +10,10 @@ precision highp float;
 // Set it bigger to less noise and accurate render. (but comment MOVEMENT).
 // #define MAX_WEIGHT 10
 
-#define MAX_DISTANCE 500.0
+#define MAX_DISTANCE 50.0
 
-#define SAMPLES 50
-#define MAX_BOUNCES 15
+#define SAMPLES 20
+#define MAX_BOUNCES 6
 #define NUM_SPHERES 4
 
 #define PI  3.14159265359
