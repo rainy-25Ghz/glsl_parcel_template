@@ -1,21 +1,12 @@
 import fs from "./f.frag";
 import vs from "./v.vert";
 import * as twgl from "../node_modules/twgl.js/dist/4.x/twgl-full";
-import obj from "bundle-text:./teapot.obj";
-import { ObjMesh } from "./obj";
-let img = document.createElement("img");
-const url = new URL("bricks.png", import.meta.url);
-img.src = url.pathname;
+
+let video = document.createElement("video");
+const url = new URL("madoka.flv", import.meta.url);
+video.src = url.pathname;
 
 function main() {
-  const objMesh = new ObjMesh();
-  objMesh.parse(obj);
-  let geometry = objMesh.getVertexBuffers();
-  const info_ = {
-    position: geometry.positionBuffer,
-    normal: geometry.normalBuffer,
-    texcoord: geometry.texCoordBuffer,
-  };
   const { m4 } = twgl;
   // Get A WebGL context
   /** @type {HTMLCanvasElement} */
@@ -30,17 +21,18 @@ function main() {
   // normal with a_normal etc..
   twgl.setAttributePrefix("a_");
 
+  const info=
   
-  const bufferInfo = twgl.createBufferInfoFromArrays(gl, info_);
+  const bufferInfo = twgl.createBufferInfoFromArrays(gl, info);
 
-  const red = [1.0, 0, 0, 1];
+  // const red = [1.0, 0, 0, 1];
   const uniforms: { [key: string]: any } = {
     u_lightWorldPos: [0, 2.0, 15],
     u_lightColor: [1, 1, 1],
     u_ambientColor: [0.05, 0.05, 0.05],
     u_specularColor: [1, 1, 1],
     u_shininess: 40,
-    u_color: red,
+    // u_color: red,
     u_useTexture: true,
     u_tex: twgl.createTexture(gl, {
       min: gl.LINEAR,
