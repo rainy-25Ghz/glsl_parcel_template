@@ -10,10 +10,11 @@ body,
     justify-content: center;
 }
 #canvas{
-    width:400px;
-    height:200px;
+    width:600px;
+    height:400px;
 }
 #origin {
-    width:400px;
-    height:200px;
+    display: block;
+    width: 50%;
+    height: 50%;
 }

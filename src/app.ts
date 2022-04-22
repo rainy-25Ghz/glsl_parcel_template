@@ -2,7 +2,7 @@ import fs from "./f.frag";
 import vs from "./v.vert";
 import * as twgl from "../node_modules/twgl.js/dist/4.x/twgl-full";
 let video = document.getElementById("origin") as HTMLVideoElement;
-const url = new URL("madoka.mp4", import.meta.url);
+const url = new URL("cateye.mp4", import.meta.url);
 video.src = url.pathname;
 
 let btn=document.getElementById("btn");
@@ -48,7 +48,7 @@ function main() {
     gl.bindTexture(gl.TEXTURE_2D, texture)
     gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, gl.RGB, gl.UNSIGNED_BYTE, video);
     uniforms.u_tex=texture;
-    uniforms.u_time=time*0.00000001;
+    uniforms.u_time=time*0.001;
     twgl.resizeCanvasToDisplaySize(gl.canvas);
     gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
 
@@ -58,6 +58,7 @@ function main() {
     gl.useProgram(programInfo.program);
     twgl.setBuffersAndAttributes(gl, programInfo, bufferInfo);
     twgl.setUniforms(programInfo, uniforms);
+    console.log(uniforms);
     gl.drawArrays(gl.TRIANGLES, 0, bufferInfo.numElements);
     gl.deleteTexture(texture);
     requestAnimationFrame(render);
