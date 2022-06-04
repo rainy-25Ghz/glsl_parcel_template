@@ -2,7 +2,6 @@ import * as THREE from "three";
 import { TextureLoader } from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
-import { animate } from "popmotion";
 
 function main() {
     //  gltf model in parcel
@@ -100,21 +99,7 @@ function main() {
         model.scale.set(8, 8, 8);
         model.position.set(10, 0, 10);
         scene.add(model);
-        animate({
-            from: 100,
-            to: 0,
-            stiffness: 300,
-            damping: 8,
-            onUpdate: (v) => {
-              console.log(v);
-                model.position.set(10, v, 10);
-                render();
-            },
-            onComplete: () => {
-                render();
-            },
-        });
-        // render();
+        render();
     });
 }
 
