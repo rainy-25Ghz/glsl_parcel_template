@@ -1720,6 +1720,11 @@ terser@^5.2.0:
     source-map "~0.7.2"
     source-map-support "~0.5.20"
 
+three@^0.141.0:
+  version "0.141.0"
+  resolved "https://registry.npmmirror.com/three/-/three-0.141.0.tgz#16677a12b9dd0c3e1568ebad0fd09de15d5a8216"
+  integrity sha512-JaSDAPWuk4RTzG5BYRQm8YZbERUxTfTDVouWgHMisS2to4E5fotMS9F2zPFNOIJyEFTTQDDKPpsgZVThKU3pXA==
+
 through2@^0.6.3:
   version "0.6.5"
   resolved "https://registry.npmmirror.com/through2/-/through2-0.6.5.tgz#41ab9c67b29d57209071410e1d7a7a968cd3ad48"
@@ -1732,11 +1737,6 @@ timsort@^0.3.0:
   version "0.3.0"
   resolved "https://registry.npmmirror.com/timsort/-/timsort-0.3.0.tgz#405411a8e7e6339fe64db9a234de11dc31e02bd4"
   integrity sha512-qsdtZH+vMoCARQtyod4imc2nIJwg9Cc7lPRrw9CzF8ZKR0khdr8+2nX80PBhET3tcyTtJDxAffGh2rXH4tyU8A==
-
-twgl.js@^4.21.2:
-  version "4.21.2"
-  resolved "https://registry.npmmirror.com/twgl.js/-/twgl.js-4.21.2.tgz#11bc3e90802d78775d67bad718e9623da8562fcf"
-  integrity sha512-VY7FEbmaXwsfHLCGYBpvlOClSZWlTPyv2d8dc/Yt7IJMiNOOBMBl+t0xLIrzO/e1fH6Co1Dd7xdvSIoq07oDfQ==
 
 type-fest@^0.20.2:
   version "0.20.2"

@@ -1,89 +1,50 @@
-import fs from "./f.frag";
-import vs from "./v.vert";
-import * as twgl from "../node_modules/twgl.js/dist/4.x/twgl-full";
-import obj from "bundle-text:./teapot.obj";
-import { ObjMesh } from "./obj";
-let img = document.createElement("img");
-const url = new URL("bricks.png", import.meta.url);
-img.src = url.pathname;
-
+import THREE from "three";
+import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
+import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
 function main() {
-  const objMesh = new ObjMesh();
-  objMesh.parse(obj);
-  let geometry = objMesh.getVertexBuffers();
-  const info_ = {
-    position: geometry.positionBuffer,
-    normal: geometry.normalBuffer,
-    texcoord: geometry.texCoordBuffer,
-  };
-  const { m4 } = twgl;
-  // Get A WebGL context
-  /** @type {HTMLCanvasElement} */
-  let canvas = document.querySelector("#canvas") as HTMLCanvasElement;
-  let gl = canvas.getContext("webgl2");
-  if (!gl) {
-    return;
-  }
-  const programInfo = twgl.createProgramInfo(gl, [vs, fs]);
+    //  gltf model in parcel
+    const modelUrl = new URL("./lighthouse2.glb", import.meta.url);
 
-  // Tell the twgl to match position with a_position, n
-  // normal with a_normal etc..
-  twgl.setAttributePrefix("a_");
+    const canvas = document.getElementById("canvas") as HTMLCanvasElement;
+    const renderer = new THREE.WebGLRenderer({ canvas });
 
-  
-  const bufferInfo = twgl.createBufferInfoFromArrays(gl, info_);
+    //set up a orthographic camera
+    const camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0.1, 10);
+    camera.position.set(0, 0, 2);
+    camera.lookAt(new THREE.Vector3(0, 0, 0));
 
-  const red = [1.0, 0, 0, 1];
-  const uniforms: { [key: string]: any } = {
-    u_lightWorldPos: [0, 2.0, 15],
-    u_lightColor: [1, 1, 1],
-    u_ambientColor: [0.05, 0.05, 0.05],
-    u_specularColor: [1, 1, 1],
-    u_shininess: 40,
-    u_color: red,
-    u_useTexture: true,
-    u_tex: twgl.createTexture(gl, {
-      min: gl.LINEAR,
-      mag: gl.LINEAR,
-      src: img,
-    }),
-  };
+    //add orbit controls
+    const controls = new OrbitControls(camera, canvas);
+    controls.update();
 
-  function render(time) {
-    time *= 0.001;
-    twgl.resizeCanvasToDisplaySize(gl.canvas);
-    gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
+    const scene = new THREE.Scene();
+    scene.background = new THREE.Color(0xffffff);
 
-    gl.enable(gl.DEPTH_TEST);
-    gl.enable(gl.CULL_FACE);
-    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-
-    const fov = (30 * Math.PI) / 180;
-    const aspect = gl.canvas.clientWidth / gl.canvas.clientHeight;
-    const zNear = 0.5;
-    const zFar = 1000;
-    const projection = m4.perspective(fov, aspect, zNear, zFar);
-    const eye = [1, 8, 100];
-    const target = [0, 0, 0];
-    const up = [0, 1, 0];
-
-    const camera = m4.lookAt(eye, target, up);
-    const view = m4.inverse(camera);
-    const viewProjection = m4.multiply(projection, view);
-    const world = m4.rotationY(time);
-
-    uniforms.u_viewInverse = camera;
-    uniforms.u_world = world;
-    uniforms.u_worldInverseTranspose = m4.transpose(m4.inverse(world));
-    uniforms.u_worldViewProjection = m4.multiply(viewProjection, world);
-
-    gl.useProgram(programInfo.program);
-    twgl.setBuffersAndAttributes(gl, programInfo, bufferInfo);
-    twgl.setUniforms(programInfo, uniforms);
-    gl.drawArrays(gl.TRIANGLES, 0, bufferInfo.numElements);
-    requestAnimationFrame(render);
-  }
-  requestAnimationFrame(render);
+    //responsive canvas
+    function resizeRendererToDisplaySize(renderer) {
+        const canvas = renderer.domElement;
+        const width = canvas.clientWidth;
+        const height = canvas.clientHeight;
+        const needResize = canvas.width !== width || canvas.height !== height;
+        if (needResize) {
+            renderer.setSize(width, height, false);
+        }
+        return needResize;
+    }
+    
+    function render() {
+        resizeRendererToDisplaySize(renderer);
+        controls.update();
+        renderer.render(scene, camera);
+        requestAnimationFrame(render);
+    }
+    //load gltf model
+    const loader = new GLTFLoader();
+    loader.load(modelUrl.href, (gltf) => {
+        const model = gltf.scene;
+        scene.add(model);
+        render();
+    });
 }
-img.addEventListener("load", main);
-// main();
+
+main();

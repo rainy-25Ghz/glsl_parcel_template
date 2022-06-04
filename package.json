@@ -16,6 +16,6 @@
     "parcel": "^2.3.2"
   },
   "dependencies": {
-    "twgl.js": "^4.21.2"
+    "three": "^0.141.0"
   }
 }
