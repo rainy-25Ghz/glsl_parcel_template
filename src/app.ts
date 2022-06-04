@@ -2,14 +2,14 @@ import * as THREE from "three";
 import { TextureLoader } from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
-
+import { animate } from "popmotion";
 function main() {
     //  gltf model in parcel
-    const modelUrl = new URL("./lighthouse.glb", import.meta.url);
-    const textureUrl = new URL("./texture.jpg", import.meta.url);
+    const modelUrl = new URL("./lighthouse2.gltf", import.meta.url);
+    const textureUrl = new URL("./baked2.png", import.meta.url);
 
     const canvas = document.getElementById("canvas") as HTMLCanvasElement;
-    const renderer = new THREE.WebGLRenderer({ canvas });
+    const renderer = new THREE.WebGLRenderer({ canvas, antialias: false });
     renderer.outputEncoding = THREE.sRGBEncoding;
 
     //set up a isometric camera in three.js
@@ -25,8 +25,7 @@ function main() {
         1000
     );
 
-    camera.position.set(90, 134, 115);
-    camera.lookAt(new THREE.Vector3(0, 0, 0));
+    camera.position.set(76, 160, 85);
 
     //add orbit controls
     const controls = new OrbitControls(camera, canvas);
@@ -34,16 +33,16 @@ function main() {
     controls.minDistance = d;
     controls.maxDistance = d * 2;
     controls.minAzimuthAngle = -Math.PI / 3;
-    controls.maxAzimuthAngle = Math.PI / 3;
+    controls.maxAzimuthAngle = Math.PI / 2;
     controls.minPolarAngle = -Math.PI / 3;
     controls.maxPolarAngle = Math.PI / 3;
-
     controls.maxZoom = 1.5;
     controls.minZoom = 0.8;
     controls.update();
 
     const scene = new THREE.Scene();
-    scene.background = new THREE.Color(0x396fb5);
+    scene.background = new THREE.Color(0xffffff);
+    
 
     //responsive canvas
     function resizeRendererToDisplaySize(renderer) {
@@ -52,22 +51,12 @@ function main() {
         const height = canvas.clientHeight;
         const needResize = canvas.width !== width || canvas.height !== height;
         if (needResize) {
-            console.log("resizing");
             renderer.setSize(width, height, false);
-            const canvas = renderer.domElement;
-            const aspect = canvas.clientWidth / canvas.clientHeight;
-            console.log(aspect);
-            camera = new THREE.OrthographicCamera(
-                -d * aspect,
-                d * aspect,
-                d,
-                -d,
-                1,
-                1000
-            );
 
-            camera.position.set(90, 134, 115);
-            camera.lookAt(new THREE.Vector3(0, 0, 0));
+            const aspect = canvas.clientWidth / canvas.clientHeight;
+            camera.left = -d * aspect;
+            camera.right = d * aspect;
+            camera.updateProjectionMatrix();
         }
         return needResize;
     }
@@ -76,7 +65,6 @@ function main() {
         resizeRendererToDisplaySize(renderer);
         controls.update();
         renderer.render(scene, camera);
-        console.log(camera.left / camera.right);
         requestAnimationFrame(render);
     }
     //load gltf model
@@ -86,6 +74,7 @@ function main() {
     bakedTexture.flipY = false;
     bakedTexture.encoding = THREE.sRGBEncoding;
     gltfloader.load(modelUrl.href, (gltf) => {
+        scene.background = new THREE.Color(0x396fb5);
         const bakedMaterial = new THREE.MeshBasicMaterial({
             map: bakedTexture,
         });
@@ -97,9 +86,22 @@ function main() {
         });
         //scale the model
         model.scale.set(8, 8, 8);
-        model.position.set(10, 0, 10);
+        // model.position.set(10, -10, 10);
         scene.add(model);
-        render();
+        animate({
+            from: 100,
+            to: -10,
+            stiffness: 500,
+            damping:10,
+            onUpdate: (v) => {
+                model.position.set(10, v, 10);
+                // renderer.render(scene, camera);
+            },
+            // onComplete: () => {
+            //     render();
+            // }
+        });
+        requestAnimationFrame(render);
     });
 }
 
