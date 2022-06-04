@@ -9,7 +9,7 @@ function main() {
     const textureUrl = new URL("./baked2.png", import.meta.url);
 
     const canvas = document.getElementById("canvas") as HTMLCanvasElement;
-    const renderer = new THREE.WebGLRenderer({ canvas, antialias: false });
+    const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
     renderer.outputEncoding = THREE.sRGBEncoding;
 
     //set up a isometric camera in three.js
