@@ -5,12 +5,12 @@ import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
 import { animate } from "popmotion";
 function main() {
     //  gltf model in parcel
-    const modelUrl = new URL("./lighthouse2.gltf", import.meta.url);
-    const textureUrl = new URL("./baked2.png", import.meta.url);
+    const modelUrl = new URL("./room.gltf", import.meta.url);
+    // const textureUrl = new URL("./baked2.png", import.meta.url);
 
     const canvas = document.getElementById("canvas") as HTMLCanvasElement;
     const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
-    
+
     renderer.outputEncoding = THREE.sRGBEncoding;
 
     //set up a isometric camera in three.js
@@ -31,14 +31,14 @@ function main() {
     //add orbit controls
     const controls = new OrbitControls(camera, canvas);
     //limits the orbit controls
-    controls.minDistance = d;
-    controls.maxDistance = d * 2;
-    controls.minAzimuthAngle = -Math.PI / 3;
-    controls.maxAzimuthAngle = Math.PI / 2;
-    controls.minPolarAngle = -Math.PI / 3;
-    controls.maxPolarAngle = Math.PI / 3;
-    controls.maxZoom = 1.5;
-    controls.minZoom = 0.8;
+    // controls.minDistance = d;
+    // controls.maxDistance = d * 2;
+    // controls.minAzimuthAngle = -Math.PI / 3;
+    // controls.maxAzimuthAngle = Math.PI / 2;
+    // controls.minPolarAngle = -Math.PI / 3;
+    // controls.maxPolarAngle = Math.PI / 3;
+    // controls.maxZoom = 1.5;
+    // controls.minZoom = 0.8;
     controls.update();
 
     const scene = new THREE.Scene();
@@ -62,6 +62,13 @@ function main() {
         return needResize;
     }
 
+    //setup the lighting
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+    scene.add(ambientLight);
+    const directionalLight = new THREE.DirectionalLight(0xffffff, 0.5);
+    directionalLight.position.set(1, 1, 1);
+    scene.add(directionalLight);
+
     function render() {
         resizeRendererToDisplaySize(renderer);
         controls.update();
@@ -71,20 +78,20 @@ function main() {
     //load gltf model
     const gltfloader = new GLTFLoader();
     const textureLoader = new TextureLoader();
-    const bakedTexture = textureLoader.load(textureUrl.href);
-    bakedTexture.flipY = false;
-    bakedTexture.encoding = THREE.sRGBEncoding;
+    // const bakedTexture = textureLoader.load(textureUrl.href);
+    // bakedTexture.flipY = false;
+    // bakedTexture.encoding = THREE.sRGBEncoding;
     gltfloader.load(modelUrl.href, (gltf) => {
         scene.background = new THREE.Color(0x396fb5);
-        const bakedMaterial = new THREE.MeshBasicMaterial({
-            map: bakedTexture,
-        });
+        // const bakedMaterial = new THREE.MeshBasicMaterial({
+        //     map: bakedTexture,
+        // });
         const model = gltf.scene;
-        model.traverse((child) => {
-            if (child instanceof THREE.Mesh) {
-                child.material = bakedMaterial;
-            }
-        });
+        // model.traverse((child) => {
+        //     // if (child instanceof THREE.Mesh) {
+        //     //     child.material = bakedMaterial;
+        //     // }
+        // });
         //scale the model
         model.scale.set(8, 8, 8);
         // model.position.set(10, -10, 10);
