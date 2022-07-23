@@ -4,6 +4,23 @@ import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
 import { animate } from "popmotion";
 function main() {
+    //spring animation options
+    const springOptions = {
+        stiffness: 100,
+        damping: 10,
+        mass: 1,
+        velocity: 2,
+        restSpeed: 0.001,
+    }
+
+    const animeOptions = { from: 80, to: -10, ...springOptions };
+    //create a button to toggle the animation
+    const button = document.createElement("button");
+    button.innerText = "Animate";
+    button.className = "button";
+    //add the button to the DOM
+    document.body.appendChild(button);
+
     //  gltf model in parcel
     const modelUrl = new URL("./room.gltf", import.meta.url);
     // const textureUrl = new URL("./baked2.png", import.meta.url);
@@ -14,7 +31,6 @@ function main() {
     renderer.outputEncoding = THREE.sRGBEncoding;
 
     //set up a isometric camera in three.js
-
     const aspect = canvas.clientWidth / canvas.clientHeight;
     const d = 100;
     let camera = new THREE.OrthographicCamera(
@@ -26,24 +42,22 @@ function main() {
         1000
     );
 
-    camera.position.set(76, 160, 85);
+    camera.position.set(125, 80, 125);
+    camera.rotation.y = 0.7;
+    camera.rotation.x = -0.56;
+    camera.rotation.z = 0.38;
+    //if in desktop browser, set zoom 2
+    if (window.innerWidth > 768) {
+        camera.zoom = 2;
+    } else camera.zoom = 1;
+    camera.updateProjectionMatrix();
 
     //add orbit controls
     const controls = new OrbitControls(camera, canvas);
-    //limits the orbit controls
-    // controls.minDistance = d;
-    // controls.maxDistance = d * 2;
-    // controls.minAzimuthAngle = -Math.PI / 3;
-    // controls.maxAzimuthAngle = Math.PI / 2;
-    // controls.minPolarAngle = -Math.PI / 3;
-    // controls.maxPolarAngle = Math.PI / 3;
-    // controls.maxZoom = 1.5;
-    // controls.minZoom = 0.8;
     controls.update();
 
     const scene = new THREE.Scene();
     scene.background = new THREE.Color(0xffffff);
-    
 
     //responsive canvas
     function resizeRendererToDisplaySize(renderer) {
@@ -62,45 +76,55 @@ function main() {
         return needResize;
     }
 
-    //setup the lighting
-    const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
-    scene.add(ambientLight);
-    const directionalLight = new THREE.DirectionalLight(0xffffff, 0.5);
-    directionalLight.position.set(1, 1, 1);
-    scene.add(directionalLight);
-
     function render() {
         resizeRendererToDisplaySize(renderer);
         controls.update();
+        console.log(camera.position, camera.rotation);
         renderer.render(scene, camera);
         requestAnimationFrame(render);
     }
     //load gltf model
     const gltfloader = new GLTFLoader();
-    const textureLoader = new TextureLoader();
+    let floor;
     // const bakedTexture = textureLoader.load(textureUrl.href);
     // bakedTexture.flipY = false;
     // bakedTexture.encoding = THREE.sRGBEncoding;
     gltfloader.load(modelUrl.href, (gltf) => {
-        scene.background = new THREE.Color(0x396fb5);
+        scene.background = new THREE.Color(0xffddaa);
         // const bakedMaterial = new THREE.MeshBasicMaterial({
         //     map: bakedTexture,
         // });
         const model = gltf.scene;
-        // model.traverse((child) => {
-        //     // if (child instanceof THREE.Mesh) {
-        //     //     child.material = bakedMaterial;
-        //     // }
-        // });
+        floor=model.getObjectByName("Floor");
+        console.log(model);
+        model.traverse((child) => {
+            // console.log(child);
+            //receive shadow
+            child.castShadow = true;
+            //receive shadow
+            child.receiveShadow = true;
+        });
         //scale the model
         model.scale.set(8, 8, 8);
+        //setup the lighting
+        const ambientLight = new THREE.AmbientLight(0xffbbef, 0.95);
+        scene.add(ambientLight);
+        const directionalLight = new THREE.DirectionalLight(0xffffff, 0.75);
+        directionalLight.position.set(-1, 1, 1);
+        scene.add(directionalLight);
         // model.position.set(10, -10, 10);
         scene.add(model);
+        button.addEventListener("click", () => {
+            animate({
+                ...animeOptions,
+                onUpdate: (v) => {
+                    model.position.set(10, v, 10);
+                    // renderer.render(scene, camera);
+                },
+            });
+        });
         animate({
-            from: 100,
-            to: -10,
-            stiffness: 500,
-            damping:10,
+            ...animeOptions,
             onUpdate: (v) => {
                 model.position.set(10, v, 10);
                 // renderer.render(scene, camera);
