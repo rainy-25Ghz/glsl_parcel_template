@@ -25,24 +25,18 @@ function main() {
         1000
     );
 
-    camera.position.set(76, 160, 85);
+    camera.position.set(
+        110.44109436697477,
+        74.19399214582037,
+        144.56492038005277
+    );
 
     //add orbit controls
     const controls = new OrbitControls(camera, canvas);
-    //limits the orbit controls
-    controls.minDistance = d;
-    controls.maxDistance = d * 2;
-    controls.minAzimuthAngle = -Math.PI / 3;
-    controls.maxAzimuthAngle = Math.PI / 2;
-    controls.minPolarAngle = -Math.PI / 3;
-    controls.maxPolarAngle = Math.PI / 3;
-    controls.maxZoom = 1.5;
-    controls.minZoom = 0.8;
     controls.update();
 
     const scene = new THREE.Scene();
     scene.background = new THREE.Color(0xffffff);
-    
 
     //responsive canvas
     function resizeRendererToDisplaySize(renderer) {
@@ -67,14 +61,21 @@ function main() {
         renderer.render(scene, camera);
         requestAnimationFrame(render);
     }
-    //load gltf model
-    const gltfloader = new GLTFLoader();
-    const textureLoader = new TextureLoader();
-    const bakedTexture = textureLoader.load(textureUrl.href);
-    bakedTexture.flipY = false;
-    bakedTexture.encoding = THREE.sRGBEncoding;
-    gltfloader.load(modelUrl.href, (gltf) => {
+    const loadingIcon = document.getElementById(
+        "loading-icon"
+    ) as HTMLDivElement;
+
+    (async () => {
+        //load gltf model
+        const gltfloader = new GLTFLoader();
+        const textureLoader = new TextureLoader();
+
         scene.background = new THREE.Color(0x396fb5);
+        renderer.render(scene, camera);
+        const bakedTexture = await textureLoader.loadAsync(textureUrl.href);
+        bakedTexture.flipY = false;
+        bakedTexture.encoding = THREE.sRGBEncoding;
+        const gltf = await gltfloader.loadAsync(modelUrl.href);
         const bakedMaterial = new THREE.MeshBasicMaterial({
             map: bakedTexture,
         });
@@ -85,14 +86,15 @@ function main() {
             }
         });
         //scale the model
-        model.scale.set(8, 8, 8);
+        model.scale.set(5, 5, 5);
         // model.position.set(10, -10, 10);
         scene.add(model);
+        loadingIcon.style.display = "none";
         animate({
             from: 100,
             to: -10,
             stiffness: 500,
-            damping:10,
+            damping: 10,
             onUpdate: (v) => {
                 model.position.set(10, v, 10);
                 // renderer.render(scene, camera);
@@ -101,8 +103,9 @@ function main() {
             //     render();
             // }
         });
+        Object.assign(window, { camera });
         requestAnimationFrame(render);
-    });
+    })();
 }
 
 main();
