@@ -46,7 +46,6 @@ function main() {
         const needResize = canvas.width !== width || canvas.height !== height;
         if (needResize) {
             renderer.setSize(width, height, false);
-
             const aspect = canvas.clientWidth / canvas.clientHeight;
             camera.left = -d * aspect;
             camera.right = d * aspect;
